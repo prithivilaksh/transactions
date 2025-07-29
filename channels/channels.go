@@ -40,6 +40,11 @@ func NewAccount(id int, balance int) *Account {
 	return account
 }
 
+func (a *Account) deposit(amount int) bool {
+	a.balance += amount
+	return true
+}
+
 func (a *Account) Deposit(amount int) bool {
 	req := deopsitReq{
 		amount: amount,
@@ -49,8 +54,11 @@ func (a *Account) Deposit(amount int) bool {
 	return <-req.resp
 }
 
-func (a *Account) deposit(amount int) bool {
-	a.balance += amount
+func (a *Account) withdraw(amount int) bool {
+	if a.balance < amount {
+		return false
+	}
+	a.balance -= amount
 	return true
 }
 
@@ -63,12 +71,8 @@ func (a *Account) Withdraw(amount int) bool {
 	return <-req.resp
 }
 
-func (a *Account) withdraw(amount int) bool {
-	if a.balance < amount {
-		return false
-	}
-	a.balance -= amount
-	return true
+func (a *Account) getBalance() int {
+	return a.balance
 }
 
 func (a *Account) GetBalance() int {
@@ -77,10 +81,6 @@ func (a *Account) GetBalance() int {
 	}
 	a.balanceReqChnl <- req
 	return <-req.resp
-}
-
-func (a *Account) getBalance() int {
-	return a.balance
 }
 
 func (a *Account) Serve() {

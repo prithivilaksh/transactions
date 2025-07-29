@@ -19,30 +19,38 @@ func NewAccount(id int, balance int) *Account {
 	}
 }
 
-func (a *Account) Deposit(amount int) bool {
-	// Sleep(2)
-	a.mu.Lock()
-	defer a.mu.Unlock()
+func (a *Account) deposit(amount int) bool {
 	a.balance += amount
 	return true
 }
 
-func (a *Account) GetBalance() int {
-	// Sleep(2)
+func (a *Account) Deposit(amount int) bool {
 	a.mu.Lock()
 	defer a.mu.Unlock()
-	return a.balance
+	return a.deposit(amount)
 }
 
-func (a *Account) Withdraw(amount int) bool {
-	// Sleep(2)
-	a.mu.Lock()
-	defer a.mu.Unlock()
+func (a *Account) withdraw(amount int) bool {
 	if a.balance < amount {
 		return false
 	}
 	a.balance -= amount
 	return true
+}
+
+func (a *Account) Withdraw(amount int) bool {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.withdraw(amount)
+}
+func (a *Account) getBalance() int {
+	return a.balance
+}
+
+func (a *Account) GetBalance() int {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.getBalance()
 }
 
 func Transfer(from *Account, to *Account, amount int) bool {
