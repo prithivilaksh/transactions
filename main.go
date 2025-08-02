@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	mutex.SimulateMutex()
-	channels.SimulateChannels()
-}
+	channels.SimulateChannels(1000, 1000000)
+	mutex.SimulateMutex(1000, 1000000)
+}	

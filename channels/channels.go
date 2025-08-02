@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
+	"time"
 )
 
 type deopsitReq struct {
@@ -100,17 +101,19 @@ func Transfer(from *Account, to *Account, amount int) bool {
 	if from.Withdraw(amount) {
 		return to.Deposit(amount)
 	}
-	fmt.Println("Insufficient balance")
+	// fmt.Println("Insufficient balance")
 	return false
 }
 
-func SimulateChannels() {
+func SimulateChannels(totAccounts int, totTransfers int) {
+	startTime := time.Now()
 	accounts := make(map[int]*Account)
 	rand := rand.New(rand.NewSource(4))
-	totAccounts := 10
-	totTransfers := 10
+	totalBalance := 0
 	for i := range totAccounts {
-		accounts[i] = NewAccount(i, rand.Intn(1000))
+		balance := rand.Intn(1000)
+		totalBalance += balance
+		accounts[i] = NewAccount(i, balance)
 	}
 	var wg sync.WaitGroup
 	for range totTransfers {
@@ -119,17 +122,17 @@ func SimulateChannels() {
 			defer wg.Done()
 			a := rand.Intn(totAccounts)
 			b := rand.Intn(totAccounts)
+			amount := rand.Intn(100)
 			if a != b {
-				Transfer(accounts[a], accounts[b], rand.Intn(100))
+				Transfer(accounts[a], accounts[b], amount)
 			}
 		}()
 	}
 	wg.Wait()
-	xor := 0
 	for _, account := range accounts {
-		balance := account.GetBalance()
-		fmt.Println(balance)
-		xor ^= balance
+		totalBalance -= account.GetBalance()
 	}
-	fmt.Println("hash =", xor)
+	fmt.Println("Channels")
+	fmt.Println("total balance =", totalBalance)
+	fmt.Println("time taken =", time.Since(startTime))
 }
